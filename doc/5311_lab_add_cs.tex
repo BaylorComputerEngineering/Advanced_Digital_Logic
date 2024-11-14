@@ -1,0 +1,132 @@
+\chapter{Conditional Sum Adders}
+
+\section{Introduction}
+
+
+
+\subsection{Conditional Sum}
+Conditional sum is a divide and conquer algorithm, and hence exploits binary tree parallelism.  The algorithm works by calculating both possible results for each bit (if carry in was 1 or 0), then performing paired conditional concatenation using the actual carry bit of the lower number, see Figure~\ref{f-cond_sum_add}.
+
+\begin{figure}
+\caption{Conditional Sum Adder (above), and its sub-blocks (below, left and right).}\label{f-cond_sum_add}
+\begin{center}
+\includegraphics{conditional_sum.png}\\\vspace{.2in}
+\includegraphics{cs_4out.png} \hspace{.2in} \includegraphics{cs_2out.png}
+\end{center}
+\end{figure}
+
+\begin{enumerate}
+    \item form conditional terms for each digit in summation $\rightarrow$ (digit with carry, digit without carry) = ($x_i+y_i+1$,$x_i+y_i$)
+    \item group by twos from right and for both conditional values in the right parenthesis form the result as follows:
+    \begin{enumerate}
+        \item the leftmost bit of the two terms on the right are the carry bits used to select the term on the left
+        \item concatenate the appropriate term on the left (picked by carry) with each term on right after removing the parity bits of the right terms
+    \end{enumerate}
+    \item continue pairings until only 1 term remains. pick right number if $c_{in}=0$ else pick left.
+\end{enumerate}
+
+\begin{example}
+ Add $x=0110$ and $y=1111$ by conditional sum and indicate if overflow occurred.
+
+        {\color{ans}
+        \begin{tabular}{cccc}
+          0+1 & 1+1 & 1+1 & 0+1 \\
+          $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ \\
+          (10,01) & (11,10) & (11,10) & (10,01) \\
+          $\searrow$ & $\swarrow$ & $\searrow$ & $\swarrow$ \\
+          \multicolumn{2}{r}{(101,100} & \multicolumn{2}{l}{(110,101)} \\
+          \multicolumn{2}{c}{$\searrow$} & \multicolumn{2}{c}{$\swarrow$} \\
+          \multicolumn{4}{c}{(10110,10101)} \\
+          \multicolumn{4}{c}{1 0101} \\
+        \end{tabular}
+
+        No overflow occurred (added a positive and negative number).
+        }
+\end{example}
+
+
+
+\begin{example}
+    Calculate $7-8$ by conditional sum.
+
+    {\color{ans}
+
+    $7=0111$ and $-8=1000$
+
+    \begin{tabular}{cccc}
+    $\;$ 0       & 1          & 1          & 1          \\
+      +1         & 0          & 0          & 0          \\ \hline
+      (10,01)    & (10,01)    & (10,01)    & (10,01)    \\
+      $\searrow$ & $\swarrow$ & $\searrow$ & $\swarrow$ \\
+      \multicolumn{2}{c}{(100,011)} & \multicolumn{2}{c}{(100,011)} \\
+      \multicolumn{2}{c}{$\quad\searrow$} & \multicolumn{2}{c}{$\swarrow\quad$} \\
+      \multicolumn{4}{c}{(10000,01111)} \\
+    \end{tabular}
+
+    Since this was done as addition no carry-in was set so the solution is \begin{tabular}{r|l} 0 & 1111 \\ \hline \end{tabular} or $-1$ in signed base ten.
+
+    }
+\end{example}
+
+
+\begin{example}
+Add by conditional sum $x=01100110$ and $y=00110011$.
+
+{\color{ans}
+\noindent
+\begin{tabular}{rrrrrrrr}
+$0+0$ & $1+0$ & $1+1$ & $0+1$ & $0+0$ & $1+0$ & $1+1$ & $0+1$ \\
+$\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ \\
+$(01,00)$ & $(10,01)$ & $(11,10)$ & $(10,01)$ & $(01,00)$ & $(10,01)$ & $(11,10)$ & $(10,01)$ \\
+$\searrow$ & $\downarrow$ & $\searrow$ & $\downarrow$ & $\searrow$ & $\downarrow$ & $\searrow$ & $\downarrow$ \\
+\multicolumn{2}{r}{$(010,001)$} & \multicolumn{2}{r}{$(110,101)$} & \multicolumn{2}{r}{$(010,001)$} & \multicolumn{2}{r}{$(110,101)$} \\
+& $\searrow$ & & $\swarrow$ & & $\searrow$ & & $\swarrow$  \\
+&  & \multicolumn{2}{c}{$(01010,01001)$} &  &  & \multicolumn{2}{c}{$(01010,01001)$ }  \\
+&  &  & $\searrow$ &  & $\swarrow$ &  &  \\
+&  &  & \multicolumn{3}{c}{$(010011010,010011001)$} &  &  \\
+&  &  & \multicolumn{3}{c}{$0 \, 10011001$} &  &  \\
+\end{tabular}
+}
+\end{example}
+
+\section{Complexity}
+
+Why go through this?  First, by a folk theorem of Dr. Alan Laub, ``\emph{What is hard for us tends to be easy for computers (and vice versa)}.''  In reality this process is really easy for a computer to do.  Second, the process is highly parallel, so it can be done very fast.  If the numbers to be added are n bits long this takes $2(\log_2(n)+1)$ levels of logic, much better than the $n+1$ levels of logic required by ripple calculations.  Thus it is O(log(n)) in time complexity.  For example, for adding the 32 bit numbers considered already, conditional sum would take $2(\log_2(32)+1)=12$ levels of logic, so on the fast logic described it would be 12ns, a huge improvement.
+
+
+
+\section{Recursive Build}
+
+Keeping track of everything in this tree structure is very challenging and thus error prone. We will therefore develop a recursive description, which greatly simplifies tree based algorithms. 
+
+Before we start, define $BT = B \mbox{\textasciicircum} c_{in}$. This can be done in one assign statement, since $B$ has $N$ bits and $c_{in}$ only has one, and you didn't use the reducing form, Verilog will conclude you meant to \textbf{xor} $c_{in}$ with each bit of $B$ separately.
+
+As Shifu said, ``There is now a level zero.'' For us that level is adding or subtracting 2 bits without a
+carry coming in. We will build a special version of a full adder for this, that outputs the carry and sum of
+$A_i$ and $B_i$ and those bits $+1$. Call it CSFA (conditiional sum full adder). In the top level conditional sum
+adder, we will have a generate statement and this will be our basis clause.
+
+We now just have to write the inductive clause, which for us will have two parts. First we need to
+instantiate two copies of conditional sum adder with half the bits each, to handle the upper and lower
+parts of A and B. We will then instantiate two muxes for combining the four outputs of the two half-sized
+conditional summer adders. Combining is done based on the carry values generated for each of two outputs
+on the smaller conditional sum adder.
+
+The final step is to use carry in to select which of the final two conditional sum adds is correct. This is
+just another mux, and technically completes the 2's complement or not 2's complement.
+
+\section{Assignment}
+
+
+
+\begin{enumerate}
+\item You must build the units above (upload .sv files)
+   \begin{enumerate}
+   \item Undergrads and Grads: for a 16-bit conditional sum adder.
+   \item Grads: do one of the extra options we discussed in class.
+   \end{enumerate}
+\item Write a testbench using tasks and test your units from above. (upload sv files)
+\item Program your board and take a picture of it working.
+\item  Create a report that describes the project, design rational, testing rational, and results (screenshots and pictures of board running the code). (upload pdf)
+\item Make sure to include pictures of your timing diagram (from test) and the picture of the functioning board.
+\end{enumerate} 

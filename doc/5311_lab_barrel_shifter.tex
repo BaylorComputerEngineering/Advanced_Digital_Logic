@@ -1,3 +1,60 @@
 \chapter{Barrel Shifter}
 
-Do Experiment 3.11.1 Multifunction Barrel Shifter from the book.
+Verilog has a built in left and right shift for both arithmetic and logical:
+
+\begin{tabular}{ccr}
+Operation & Verilog &  Exmple\\ \hline
+left shift logical & \verb1<<1 & \verb1assign a = b <<2;1\\
+left shift arithmetic & \verb1<<<1 & \verb1assign a = b <<<2;1\\\hline
+right shift logical & \verb1>>1 & \verb1assign a = b >>2;1\\
+right shift arithmetic & \verb1>>>1 & \verb1assign a = b >>>2;1
+\end{tabular}
+
+So why do we need more? There is no circulant version, and circulant is quite useful in many operations,
+such as multiplication, division, and various encryption techniques.
+
+Remember that when you shift something there is always an empty spot left. That empty spot has to
+be filled with something, so the different shift styles explain how to fill the missing bits. Logical always fills
+with zero, regardless of the direction. Arithmetic fills with the sign bit, if it is a left shift, or zeros if it is
+a right shift. In a circulant shift, the bits that shift out, wrap around and become the bits shifted in. You
+can make any shift from a logical, though it takes some extra work and thus time also. For instance a left
+circulant shift by $n$ of an $N$ bit number can be made by doing a left logical shift by $n$, a right logical shift
+by $N-n$, then taking a bitwise or of the two results.
+
+This is not as fast, or efficient as a dedicated circuit, particularly since doing a left and right shift then
+taking the or, would use three commands, thus three cycles of computation. This is very expensive.
+We will proceed by building a right shift, then making a left or right shift from it. We will then look at
+alternate ways to build a right shift that work better when parameterizing.
+
+
+
+\section{Shifting Right}
+Done in class.  Make sure you make the extendable version using the generate statement.
+
+\section{Shifting Left}
+
+This is the assignment to undergrads and grads.  Take what we did in class and make a version to left shift.  There are two common ways:
+\begin{enumerate}
+  \item Invert the input on the number to be shifted and feed into a right shifter then invert the output.  As mentioned in class this will work and does not take extra time (the inversion is a wire reorder)
+  \item Recode the right shift as a left shift.
+\end{enumerate}
+You must do the second.
+
+\section{Shift Left or Right}
+
+If you are a grad student, you must now make a circuit that can shift left or right.  There are several ways to do this.  One of the easiest is to make both and add a mux to select which to use. You can also note that the first way of building the left shift above can be used to reduce the shifter units by adding a conditional flip before and after the Right Shift unit.  The first is likely the best choice in this case as you have to build the left shift as mentioned for the undergrads, then do this combination based off it.
+
+\section{Assignment}
+ 
+\begin{enumerate}
+\item You must build the units above (upload .sv files)
+   \begin{enumerate}
+   \item Undergrads and Grads: left shift
+   \item Grads: Combine left shift with right shift from class.
+   \end{enumerate}
+\item Write a testbench as described in class and test your units from above. (upload sv files)
+\item Program your board and take a picture of it working.
+\item Create a report that describes the project, design rational, testing rational, and results (screenshots and pictures of board running the code). (upload pdf)
+\item Make sure to include pictures of your timing diagram (from test) and the picture of the functioning board.
+\end{enumerate}
+  

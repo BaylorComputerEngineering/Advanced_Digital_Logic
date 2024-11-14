@@ -1,0 +1,119 @@
+\chapter{Carry Look-Ahead Adders}
+
+
+
+
+\subsection{Carry Look-Ahead}
+
+Carry look-ahead (CLA) is also referred to as carry lookahead and lookahead carry.  Don't worry about the naming differences.  Assume $x+y=z$.  Pre-generate all carries with 2-level logic. Usually form (g,p,c) generate, propagate, carry.
+\begin{eqnarray}
+G_i & = & x_i \cdot y_i \label{eq-generate}\\
+P_i & = & x_i + y_i \label{eq-propagate}\\
+C_i & = & G_i + P_i \cdot C_{i-1} \\
+    & = & G_i + P_i \cdot (G_{i-1} + P_{i-1} \cdot C_{i-2}) \\
+    & = & G_i + P_i \cdot G_{i-1} + P_i \cdot P_{i-1} \cdot C_{i-2} \\
+    & = & G_i + P_i \cdot G_{i-1} + P_i \cdot P_{i-1} \cdot G_{i-2} +
+    \ldots + P_i \cdot P_{i-1} \cdot \ldots \cdot P_0 \cdot C_{in}\\
+    &=& G_i + \sum_{j=1}^i\left(\prod_{k=j}^{i} P_k \right)G_{i-1} + \left(\prod_{j=0}^{i} P_j\right) C_{in} \label{eq-carry}
+\end{eqnarray}
+
+This method is very fast (regardless of size it take 5 levels of logic) but requires large gates for problems of reasonable size (even 16 or 32 bit numbers) and thus has problems with fan-in, fan-out, and size.
+
+Often blocks of a number are handled with lookahead, and the blocks are connected in some fashion (for example ripple) to get the net result (i.e. just like single bit adds from a full adder are connected to propagate the carry bit, blocks or 4, 8, or more could be handled lookahead then connected to propagate the carry bit between them to handle a larger number, say 32 bits).  Even better than cascading (ripple connection) the adders, is to us group carry-lookahead, in which each of the carry-lookahead adders output their group propagate and group generate variables to a circuit that generates the carry-in bits for each group.  It takes 5 logic levels to generate the carries to each individual carry-lookahead adder, and each adder then takes 5 levels of logic to get the result, for a total of 10 levels of logic.  For the example of adding 32 bit numbers with fast logic, it would take 10ns with group carry-lookahead adders (probably four or eight bits in a group).
+
+
+\begin{example}
+Specify the equations of a two bit binary adder with carry in (i.e.: one equation for each of the sum bits and one equation for the carry out).  Put the equations in sum of products form.
+
+{\color{ans}Sol:
+Let the two numbers to be added be $A_1 A_0$ and $B_1 B_0$.  Let the resulting sum be $S_1 S_0$.  Let the carries be $C_{in}$ and $C_{out}$.  Finally, let $C_0$ be the carry from the first bit added (saves writing).
+\begin{eqnarray*}
+S_0 & = & A_0 \oplus B_0 \oplus C_{in} \\
+C_0 & = & A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in} \\
+S_1 & = & A_1 \oplus B_1 \oplus C_0\\
+C_{out} & = & A_1 \cdot B_1 + A_1 \cdot C_0 + B_1 \cdot C_0
+\end{eqnarray*}
+Putting this in sum of products form yields
+\begin{eqnarray*}
+S_0 & = & A_0' \cdot B_0' \cdot C_{in} +
+          A_0' \cdot B_0 \cdot C_{in}' +
+          A_0 \cdot B_0' \cdot C_{in}' +
+          A_0 \cdot B_0 \cdot C_{in} \\
+S_1 & = & A_1' \cdot B_1' \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in}) +
+          A_1' \cdot B_1 \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in})' + \\
+    & & \qquad A_1 \cdot B_1' \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in})' +
+          A_1 \cdot B_1 \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in}) \\
+    & = & A_1' \cdot B_1' \cdot A_0\cdot B_0 + A_1' \cdot B_1' \cdot A_0 \cdot C_{in}
+          + A_1' \cdot B_1' \cdot B_0\cdot C_{in} \\
+    & & \qquad
+          + A_1' \cdot B_1 \cdot (A_0'\cdot B_0' + A_0'\cdot C_{in}' + B_0'\cdot C_{in}') \\
+    & & \qquad
+          + A_1 \cdot B_1' \cdot (A_0'\cdot B_0' + A_0'\cdot C_{in}' + B_0'\cdot C_{in}') \\
+    & & \qquad
+          + A_1 \cdot B_1 \cdot A_0\cdot B_0 + A_1 \cdot B_1 \cdot A_0\cdot C_{in}
+           + A_1 \cdot B_1 \cdot B_0\cdot C_{in} \\
+    & = & A_1' \cdot B_1' \cdot A_0\cdot B_0 + A_1' \cdot B_1' \cdot A_0 \cdot C_{in}
+          + A_1' \cdot B_1' \cdot B_0\cdot C_{in} \\
+    & & \qquad
+          + A_1' \cdot B_1 \cdot A_0'\cdot B_0' + A_1' \cdot B_1 \cdot A_0'\cdot C_{in}'
+          + A_1' \cdot B_1 \cdot B_0'\cdot C_{in}' \\
+    & & \qquad
+          + A_1 \cdot B_1' \cdot A_0'\cdot B_0' + A_1 \cdot B_1' \cdot A_0'\cdot C_{in}'
+          + A_1 \cdot B_1' \cdot B_0'\cdot C_{in}' \\
+    & & \qquad
+          + A_1 \cdot B_1 \cdot A_0\cdot B_0 + A_1 \cdot B_1 \cdot A_0\cdot C_{in}
+           + A_1 \cdot B_1 \cdot B_0\cdot C_{in} \\
+C_{out} & = & A_1 \cdot B_1 + A_1 \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in}) \\
+   & & \qquad + B_1 \cdot (A_0\cdot B_0 + A_0\cdot C_{in} + B_0\cdot C_{in}) \\
+    & = & A_1 \cdot B_1 + A_1 \cdot A_0\cdot B_0 + A_1 \cdot A_0\cdot C_{in} + A_1 \cdot B_0\cdot C_{in} \\
+   & & \qquad + B_1 \cdot A_0\cdot B_0 + B_1 \cdot A_0\cdot C_{in} + B_1 \cdot B_0\cdot C_{in}
+\end{eqnarray*}
+}
+\end{example}
+
+\section{Four Bit (Block) Carry Look-Ahead Module}
+
+We will build our 4-bit carry look-ahead adder from a 4-bit ripple carry adder/subtractor. In the ripple carry version, we would have four full adders that pass their carry bits, and the subtraction part is handled by \textbf{xor}'ing each bit of the second number with cin\footnote{1note \textbf{xor}'ing the second number with cin, performs a selective 1's complement on the number based on the value of cin. This effectively turns cin into the mode (add on 0, subtract on 1). The number that has been 1's complemented becomes 2's complemented as cin also provides a +1 since it is the carry in to the least significant bit.}. To turn this into a carry look ahead unit, we will break the ripple carry connection, and add a carry look ahead unit that will supply the carry bits for all the full adders but the first, as well as the carry out. See figure~\ref{fig-4bitcla}.
+
+\begin{figure}
+  \centering
+  \includegraphics{5311_lab_main21bcla4}
+  \caption{4 bit carry look-ahead adder}\label{fig-4bitcla}
+\end{figure}
+
+Since we want to re-use the testing system from our ripple carry adder/subtractor, pass the same interface for the carry look-ahead (CLA) adder/subtractor. Inside the cla adder/subtractor, generate the full adders to add each bit of D.a and the xor of D.b with D.cin. Do not put the xor in the full adder\footnote{It is confusing for two reasons: 1) it is not what anyone will expect in a full adder, 2) you will have to pass two carrys in one for the \textbf{xor} and a separate one for the traditional cin (they are only the same on the first full adder).}. Create a module for the carry look-ahead unit (4 bit), and instantiate it in the cla adder/subtractor.
+
+We will construct the cla unit using generate eq.~\ref{eq-generate}, propagate eq.~\ref{eq-propagate}, and the simple formula for carry eq.~\ref{eq-carry}. Note that it is easiest to use the reducing and and reducing or constructs in System Verilog (bitwise \textbf{and} or bitwise \textbf{or} operation with only one operand on the right of the operation). I advise making a temporary array (compressed usually works best with vivado) and doing the reducing \textbf{and} then storing it.  You can then combine it with a reducing \textbf{or}.
+
+\section{Sixteen Bit Block Carry Look-Ahead}
+
+The 16 bit version of the CLA Adder/subtractor will be much like the 4 bit version. Both use one full adder for each bit of the numbers to be added or subtracted, see figure~\ref{fig-16bitcla}. Both use xor gates and carry in to perform the one's complement on the number to be subtracted. The full adders will have one modification though, they will now make the generate and propagate signals for each bit and pass them to the CLA unit(s) inside the CLA adder/subtractor. This is very important as in order to make the CLA tree structure without making new units for each level of the tree the previous level must combine the propagate and generate signals to make a block propagate (BP) and block generate (BG) signals for that block. When that is done the same 4 bit BCLA unit can be used for every level, and will even handle the generation of BP and BG for each level. The tree structure is pretty simple, four propagate and generate signals and one carry in come into each BCLA and four carry outs are returned along with a BP and BG to the next level down. BP and BG are created by dividing eq.~\ref{eq-carry} for the final carry into those terms that don't multiply cin (BG) and those that do (BP):
+
+\begin{eqnarray}
+BG &=& G_3 + \sum_{i=1}^3\left(\prod_{j=i}^{3} P_j \right)G_{i-1}\\
+BP &=& \prod_{i=0}^{3} P_i
+\end{eqnarray}
+
+thus we can write eq.~\ref{eq-carry} for the final carry as $C(3)=BG+BP\cdot C_{in}$.
+
+\begin{figure}
+  \centering
+  \includegraphics{5311_lab_main21_bcla16}
+  \caption{16-bit carry look ahead adder, tree connections}\label{fig-16bitcla}
+\end{figure}
+
+\section{Assignment}
+
+
+
+\begin{enumerate}
+\item You must build the units above (upload .sv files)
+   \begin{enumerate}
+   \item Undergrads: for a 16-bit \textbf{ripple} block carry lookahead, with 4-bit blocks.
+   \item Grads: for a 16-bit \textbf{tree} block carry lookahead, with 4-bit blocks.
+   \end{enumerate}
+\item Write a testbench using tasks and test your units from above. (upload sv files)
+\item Program your board and take a picture of it working.
+\item  Create a report that describes the project, design rational, testing rational, and results (screenshots and pictures of board running the code). (upload pdf)
+\item Make sure to include pictures of your timing diagram (from test) and the picture of the functioning board.
+\end{enumerate} 

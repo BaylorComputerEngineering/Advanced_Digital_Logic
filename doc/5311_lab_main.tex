@@ -1,5 +1,6 @@
 \documentclass{book}
 \usepackage{graphicx} % new way of doing eps files
+\graphicspath{{../images/}}
 \usepackage{rotating} % for sideways
 \usepackage{multirow} % for \multirow
 \usepackage{url}      % for \url
@@ -85,7 +86,7 @@
 {\large Department of} \\
 {\Large Electrical and Computer Engineering}\\
 \vspace{1in}
-{\Large ELC 5311 (graduates), 4396(undergrad)} \\
+{\Large ELC 5311 (graduates), 4311(undergrad)} \\
 {\Huge Advanced Digital Logic Laboratories} \\
 }
 \author{
@@ -112,17 +113,23 @@ Baylor University
 
 \pagenumbering{arabic}
 
-\input{5311_lab_intro}
+%\input{5311_lab_intro}
 
 \input{5311_lab_barrel_shifter}
 
-\input{5311_lab_add}
+\input{5311_lab_add_rc}
 
-\input{5311_lab_pwm_dimmer}
+\input{5311_lab_add_bcl}
 
-\input{5311_lab_detection}
+\input{5311_lab_add_cs}
 
-\input{5311_lab_babbage}
+%\input{5311_lab_add}
+
+%\input{5311_lab_pwm_dimmer}
+
+%\input{5311_lab_detection}
+
+%\input{5311_lab_babbage}
 
 \appendix
 
