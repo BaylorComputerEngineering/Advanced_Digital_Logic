@@ -6,8 +6,7 @@
 //
 // Create Date:   14:07:00 09/02/2015
 // Design Name:   Barrel_Shift_R_Gen
-// Module Name:   C:/Users/schubertk/Documents/Baylor/classes/4396 adv digital
-logic/labs/advDigDesign/Barrel_Shift_R_Gen_test.v
+// Module Name:   C:/Users/schubertk/Documents/Baylor/classes/4396 adv digital logic/labs/advDigDesign/Barrel_Shift_R_Gen_test.v
 // Project Name:  advDigDesign
 // Target Device:
 // Tool versions:
