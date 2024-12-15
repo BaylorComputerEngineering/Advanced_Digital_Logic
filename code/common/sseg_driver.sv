@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 module sseg_driver(
     input logic [3:0] num,
-    output logic [0:6] sseg,
+    output logic[6:0] sseg,
     output logic dp
     );
 	assign dp = 1;
